@@ -18,10 +18,26 @@ app.get("/", (req, res) => {
 
 io.on("connection", (socket) => {
   console.log(`user with ${socket.id} id connect.`);
+  connectionPeers.push(socket.id)
+  socket.on("pre-offer", (data) => {
+    const { calleePersonalCode, callType } = data;
+    const connectedPeer = connectionPeers.find((peerSocketId) => 
+      peerSocketId === calleePersonalCode
+    );
+    console.log(connectionPeers)
+    console.log(connectedPeer)
+    if (connectedPeer) {
+      const data = {
+        callerSocketId: socket.id,
+        callType,
+      };
+      io.to(calleePersonalCode).emit("pre-offer", data);
+    }
+  });
 
   socket.on("disconnect", () => {
     const newConnectionPeer = connectionPeers.filter((peerSocketId) => {
-      peerSocketId !== socket.id;
+      return peerSocketId !== socket.id;
     });
     connectionPeers = newConnectionPeer;
   });
