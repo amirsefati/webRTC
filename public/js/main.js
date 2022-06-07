@@ -5,6 +5,7 @@ import * as constants from "./constants.js";
 
 const socket = io("/");
 wss.registerSocketEvent(socket);
+webRTCHandler.getLocalPreview();
 
 const personalCodeCopyButton = document.getElementById(
   "personal_code_copy_button"
@@ -35,4 +36,3 @@ personalCodeVideoButton.addEventListener("click", () => {
   const callType = constants.callType.VIDEO_PERSONAL_CODE;
   webRTCHandler.sendPreOffer(callType, calleePersonalCode);
 });
-
