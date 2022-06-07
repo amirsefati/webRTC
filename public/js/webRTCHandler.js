@@ -1,8 +1,26 @@
 import * as wss from "./wss.js";
 import * as constants from "./constants.js";
 import * as ui from "./ui.js";
+import * as store from "./store.js";
 
 let connectedFromUserDetails;
+let defailtConstraints = {
+  audio: true,
+  video: true,
+};
+
+export const getLocalPreview = () => {
+  navigator.mediaDevices
+    .getUserMedia(defailtConstraints)
+    .then((stream) => {
+      ui.updateLocalVideo(stream);
+      store.setLocalStream(stream);
+    })
+    .catch((err) => {
+      console.log("Error occured trying to get camera");
+      console.log(err);
+    });
+};
 
 export const sendPreOffer = (callType, calleePersonalCode) => {
   connectedFromUserDetails = {
@@ -41,7 +59,6 @@ const acceptCallHandler = () => {
   console.log("accepted");
   sendPreOfferAnswer(constants.preOfferAnswer.CALL_ACCEPTED);
   ui.showCallElements(connectedFromUserDetails.callType);
-
 };
 
 const rejectCallHandler = () => {
