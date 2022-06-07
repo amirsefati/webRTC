@@ -13,6 +13,10 @@ export const registerSocketEvent = (socket) => {
     ui.updatePersonalCode(socket.id);
   });
 
+  socket.on("pre-offer-answer", (data) => {
+    webRTCHandler.handlePreOfferAnswer(data);
+  });
+
   socket.on("pre-offer", (data) => {
     webRTCHandler.handlePreOffer(data);
   });
@@ -20,4 +24,8 @@ export const registerSocketEvent = (socket) => {
 
 export const sendPreOffer = (data) => {
   sockerIO.emit("pre-offer", data);
+};
+
+export const sendPreOfferAnswer = (data) => {
+  sockerIO.emit("pre-offer-answer", data);
 };
