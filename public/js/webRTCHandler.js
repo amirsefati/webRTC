@@ -4,9 +4,16 @@ import * as ui from "./ui.js";
 import * as store from "./store.js";
 
 let connectedFromUserDetails;
-let defailtConstraints = {
+let peerConnection;
+
+const defailtConstraints = {
   audio: true,
   video: true,
+};
+const configuration = {
+  iceServer: {
+    urls: "stun:stun.l.google.com:13902",
+  },
 };
 
 export const getLocalPreview = () => {
@@ -20,6 +27,41 @@ export const getLocalPreview = () => {
       console.log("Error occured trying to get camera");
       console.log(err);
     });
+};
+
+const createPeerConnection = () => {
+  peerConnection = new RTCPeerConnection(configuration);
+
+  peerConnection.onicecandidate = (event) => {
+    if (event.candidate) {
+      //send our ice candidate to other peer
+    }
+
+    peerConnection.onconnectionstatechange = (event) => {
+      if (peerConnection.connectionState === "connected") {
+        console.log("succesfully connected with other peer");
+      }
+    };
+  };
+
+  // receiving tracks
+  const remoteStream = new MediaStream();
+  store.setRemoteStream(remoteStream);
+  ui.updateRemoteVideo(remoteStream);
+
+  peerConnection.ontrack = (event) => {
+    remoteStream.addTrack(event.track);
+  };
+
+  // add our stream to peer connection
+  if (
+    connectedFromUserDetails.callType === constants.callType.VIDEO_PERSONAL_CODE
+  ) {
+    const localStream = store.getState().localStream;
+    for (const track of localStream.getTracks()) {
+      peerConnection.addTrack(track, localStream);
+    }
+  }
 };
 
 export const sendPreOffer = (callType, calleePersonalCode) => {
