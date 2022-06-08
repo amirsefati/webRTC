@@ -25,28 +25,40 @@ io.on("connection", (socket) => {
     const connectedPeer = connectionPeers.find(
       (peerSocketId) => peerSocketId === calleePersonalCode
     );
-    console.log(connectedPeer)
+    console.log(connectedPeer);
     if (connectedPeer) {
       const data = {
         callerSocketId: socket.id,
         callType,
       };
       io.to(calleePersonalCode).emit("pre-offer", data);
-    }else {
+    } else {
       const data = {
-        preOfferAnswer: "CALLEE_NOT_FOUND"
-      }
+        preOfferAnswer: "CALLEE_NOT_FOUND",
+      };
       io.to(socket.id).emit("pre-offer-answer", data);
     }
   });
 
   socket.on("pre-offer-answer", (data) => {
-    const { callerSocketId, preOfferAnswer } = data;
+    const { callerSocketId } = data;
+
     const connectedPeer = connectionPeers.find(
       (peerSocketId) => peerSocketId === callerSocketId
     );
     if (connectedPeer) {
       io.to(callerSocketId).emit("pre-offer-answer", data);
+    }
+  });
+
+  socket.on("webRTC-signaling", (data) => {
+    const { connectedUserSocketId } = data;
+    const connectedPeer = connectionPeers.find(
+      (peerSocketId) => peerSocketId === connectedUserSocketId
+    );
+    console.log("connectedPeer")
+    if (connectedPeer) {
+      io.to(connectedUserSocketId).emit("webRTC-signaling", data);
     }
   });
 

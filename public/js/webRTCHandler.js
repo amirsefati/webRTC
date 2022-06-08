@@ -33,8 +33,14 @@ const createPeerConnection = () => {
   peerConnection = new RTCPeerConnection(configuration);
 
   peerConnection.onicecandidate = (event) => {
+    console.log("geeting ice candidates from stun server");
     if (event.candidate) {
       //send our ice candidate to other peer
+      wss.sendDataUsingWebRTCSignaling({
+        connectedUserSocketId: connectedFromUserDetails.socketId,
+        type: constants.webRTCSignaling.ICE_CANDIDATE,
+        candidate: event.candidate,
+      });
     }
 
     peerConnection.onconnectionstatechange = (event) => {
@@ -93,12 +99,14 @@ export const handlePreOffer = (data) => {
     callType === constants.callType.CHAT_PERSONAL_CODE ||
     callType === constants.callType.VIDEO_PERSONAL_CODE
   ) {
+    console.log("showing call dialog");
     ui.showIncomingCallDialog(callType, acceptCallHandler, rejectCallHandler);
   }
 };
 
 const acceptCallHandler = () => {
   console.log("accepted");
+  createPeerConnection();
   sendPreOfferAnswer(constants.preOfferAnswer.CALL_ACCEPTED);
   ui.showCallElements(connectedFromUserDetails.callType);
 };
@@ -137,5 +145,46 @@ export const handlePreOfferAnswer = (data) => {
 
   if (preOfferAnswer === constants.preOfferAnswer.CALL_ACCEPTED) {
     ui.showCallElements(connectedFromUserDetails.callType);
+    createPeerConnection();
+    sendWebRTCOffer();
+  }
+};
+
+const sendWebRTCOffer = async () => {
+  const offer = await peerConnection.createOffer();
+  await peerConnection.setLocalDescription(offer);
+  wss.sendDataUsingWebRTCSignaling({
+    connectedUserSocketId: connectedFromUserDetails.socketId,
+    type: constants.webRTCSignaling.OFFER,
+    offer: offer,
+  });
+};
+
+export const handleWebRTCOffer = async (data) => {
+  await peerConnection.setRemoteDescription(data.offer);
+  const answer = await peerConnection.createAnswer();
+  await peerConnection.setLocalDescription(answer);
+  wss.sendDataUsingWebRTCSignaling({
+    connectedUserSocketId: connectedFromUserDetails.socketId,
+    type: constants.webRTCSignaling.ANSWER,
+    answer: answer,
+  });
+};
+
+export const handleWebRTCAnswer = async (data) => {
+  console.log("Handelig webRTC answer");
+  await peerConnection.setRemoteDescription(data.answer);
+  console.log("setRemoteDescription")
+};
+
+export const handleWebRTCCandidate = async (data) => {
+  console.log("handeling incoming WebRTC candidates");
+  try {
+    await peerConnection.addIceCandidate(data.candidate);
+  } catch (err) {
+    console.error(
+      "error occured when trying to add recived ice candidate",
+      err
+    );
   }
 };
