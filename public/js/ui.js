@@ -20,7 +20,7 @@ export const updateLocalVideo = (stream) => {
 export const updateRemoteVideo = (stream) => {
   const remoteVideo = document.getElementById("remote_video");
   remoteVideo.srcObject = stream;
-}
+};
 
 export const showIncomingCallDialog = (
   callType,
@@ -108,6 +108,23 @@ const showChatCallElements = () => {
   disableDashboard();
 };
 
+const micOnImageSrc = "./utils/images/mic.png";
+const micOffImageSrc = "./utils/images/micOff.png";
+
+export const updateMicButton = (micActive) => {
+  const micButtonImage = document.getElementById("mic_button_image");
+  micButtonImage.src = micActive ? micOffImageSrc : micOnImageSrc;
+};
+
+const cameraOnImageSrc = "./utils/images/camera.png";
+const cameraOffImageSrc = "./utils/images/cameraOff.png";
+
+
+export const updateCameraButton = (cameraActice) => {
+  const cameraButtonImage = document.getElementById("camera_button_image");
+  cameraButtonImage.src = cameraActice ? cameraOffImageSrc : cameraOnImageSrc;
+};
+
 const showVideoCallElements = () => {
   const callButtons = document.getElementById("call_buttons");
   showElement(callButtons);
@@ -149,4 +166,3 @@ const showElement = (element) => {
     element.classList.remove("display_none");
   }
 };
-

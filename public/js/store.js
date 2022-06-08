@@ -44,6 +44,17 @@ export const setallowConnectionFromStrangers = (
   };
 };
 
+export const setScreenSharingAvtice = (
+  screenSharingAvtice
+) => {
+  state = {
+    ...state,
+    screenSharingAvtice: screenSharingAvtice,
+  };
+};
+
+
+
 export const getState = () => {
   return state;
 };
