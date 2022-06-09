@@ -119,7 +119,6 @@ export const updateMicButton = (micActive) => {
 const cameraOnImageSrc = "./utils/images/camera.png";
 const cameraOffImageSrc = "./utils/images/cameraOff.png";
 
-
 export const updateCameraButton = (cameraActice) => {
   const cameraButtonImage = document.getElementById("camera_button_image");
   cameraButtonImage.src = cameraActice ? cameraOffImageSrc : cameraOnImageSrc;
@@ -139,6 +138,14 @@ const showVideoCallElements = () => {
   showElement(newMessageInput);
   //block panel
   disableDashboard();
+};
+
+export const appendMessage = (message, right = false) => {
+  const messageContainer = document.getElementById("messages_container");
+  const messageElement = right
+    ? elements.getRightMessage(message)
+    : elements.getLeftMessage(message);
+  messageContainer.appendChild(messageElement);
 };
 
 const enableDashboard = () => {
